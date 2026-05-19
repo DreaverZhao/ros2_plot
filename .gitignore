@@ -1,0 +1,8 @@
+.agents
+.codex
+__pycache__
+
+*.yaml
+!basic.yaml
+
+*.png

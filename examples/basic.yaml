@@ -1,0 +1,72 @@
+bag: /path/to/rosbag
+storage_id: sqlite3
+
+time:
+  mode: relative
+  start: 0.0
+  end: 30.0
+
+aliases:
+  odom: /odom
+  imu: /imu/data
+
+styles:
+  estimate:
+    color: "#2563eb"
+    linestyle: "-"
+    linewidth: 2
+  reference:
+    color: "#dc2626"
+    linestyle: "--"
+    linewidth: 1.5
+
+plots:
+  - title: Position
+    y_label: position [m]
+    series:
+      - topic: odom
+        field: pose.pose.position.x
+        label: x
+        style: estimate
+      - topic: odom
+        field: pose.pose.position.y
+        label: y
+        style:
+          use: reference
+          color: "#16a34a"
+
+  - title: Angular velocity
+    y_label: yaw rate [rad/s]
+    series:
+      - topic: imu
+        field: angular_velocity.z
+        label: gyro z
+        style:
+          color: "#7c3aed"
+          linewidth: 1.5
+
+  - title: Orientation
+    y_label: angle [rad]
+    series:
+      - topic: imu
+        function: quat_roll
+        label: roll
+        style: estimate
+      - topic: imu
+        function: quat_pitch
+        label: pitch
+        style:
+          use: reference
+          color: "#ea580c"
+      - topic: imu
+        function: quat_yaw
+        label: yaw
+        style:
+          color: "#0891b2"
+          linestyle: "-."
+          linewidth: 1.5
+
+output:
+  save: plot.png
+  show: true
+  dpi: 140
