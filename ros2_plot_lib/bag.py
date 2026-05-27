@@ -43,6 +43,7 @@ def read_bag(config: AppConfig) -> dict[str, tuple[list[float], list[float]]]:
     validate_series_against_topics(series_by_topic, message_types)
 
     bag_start_ns: int | None = None
+    plot_time_origin: float | None = config.start if config.time_mode == "relative" else None
     while reader.has_next():
         topic, raw_data, timestamp_ns = reader.read_next()
         if bag_start_ns is None:
@@ -52,11 +53,13 @@ def read_bag(config: AppConfig) -> dict[str, tuple[list[float], list[float]]]:
         if not topic_series:
             continue
 
-        x_value = time_value(timestamp_ns, bag_start_ns, config.time_mode)
-        if config.start is not None and x_value < config.start:
+        raw_time = time_value(timestamp_ns, bag_start_ns, config.time_mode)
+        if config.start is not None and raw_time < config.start:
             continue
-        if config.end is not None and x_value > config.end:
+        if config.end is not None and raw_time > config.end:
             continue
+
+        x_value = shifted_time_value(raw_time, plot_time_origin)
 
         message = deserialize_message(raw_data, message_types[topic])
         field_cache: dict[str, float] = {}
@@ -144,3 +147,9 @@ def time_value(timestamp_ns: int, bag_start_ns: int, mode: str) -> float:
     if mode in {"bag", "unix"}:
         return timestamp_ns / NSEC_PER_SEC
     raise SystemExit("time.mode must be one of: relative, bag, unix.")
+
+
+def shifted_time_value(raw_time: float, origin: float | None) -> float:
+    if origin is None:
+        return raw_time
+    return raw_time - origin

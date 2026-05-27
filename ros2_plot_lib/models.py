@@ -35,11 +35,21 @@ class PlotConfig:
     title: str | None
     series: list[SeriesConfig]
     title_loc: str = "center"
+    title_size: float | None = None
     x_label: str | None = "time [s]"
     x_label_loc: str = "center"
+    x_label_size: float | None = None
     y_label: str | None = None
     y_label_side: str = "left"
     y_label_loc: str = "center"
+    y_label_size: float | None = None
+    tick_label_size: float | None = None
+    text_font: str | None = None
+    font_size: float | None = None
+    legend_font: str | None = None
+    legend_size: float | None = None
+    grid_linewidth: float = 0.8
+    grid_alpha: float = 0.25
 
 
 @dataclass

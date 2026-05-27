@@ -17,26 +17,34 @@ class TransformSpec:
     input_name: str
 
 
-def quat_roll(message: Any, field: str = "orientation") -> float:
+def quat_roll(message: Any, field: str = "orientation", angle_range: str = "-pi_pi") -> float:
     x, y, z, w = quat_components(message, field)
     sinr_cosp = 2.0 * (w * x + y * z)
     cosr_cosp = 1.0 - 2.0 * (x * x + y * y)
-    return math.atan2(sinr_cosp, cosr_cosp)
+    return format_angle(math.atan2(sinr_cosp, cosr_cosp), angle_range)
 
 
-def quat_pitch(message: Any, field: str = "orientation") -> float:
+def quat_pitch(message: Any, field: str = "orientation", angle_range: str = "-pi_pi") -> float:
     x, y, z, w = quat_components(message, field)
     sinp = 2.0 * (w * y - z * x)
     if abs(sinp) >= 1.0:
-        return math.copysign(math.pi / 2.0, sinp)
-    return math.asin(sinp)
+        return format_angle(math.copysign(math.pi / 2.0, sinp), angle_range)
+    return format_angle(math.asin(sinp), angle_range)
 
 
-def quat_yaw(message: Any, field: str = "orientation") -> float:
+def quat_yaw(message: Any, field: str = "orientation", angle_range: str = "-pi_pi") -> float:
     x, y, z, w = quat_components(message, field)
     siny_cosp = 2.0 * (w * z + x * y)
     cosy_cosp = 1.0 - 2.0 * (y * y + z * z)
-    return math.atan2(siny_cosp, cosy_cosp)
+    return format_angle(math.atan2(siny_cosp, cosy_cosp), angle_range)
+
+
+def format_angle(angle: float, angle_range: str) -> float:
+    if angle_range == "-pi_pi":
+        return angle
+    if angle_range == "0_2pi":
+        return angle % math.tau
+    raise SystemExit("Quaternion `angle_range` must be `-pi_pi` or `0_2pi`.")
 
 
 def quat_components(message: Any, field: str) -> tuple[float, float, float, float]:

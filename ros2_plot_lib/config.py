@@ -23,13 +23,16 @@ def load_config(path: Path) -> AppConfig:
     styles = raw.get("styles") or {}
     time_cfg = raw.get("time") or {}
     output_cfg = raw.get("output") or {}
+    plot_defaults = raw.get("plot_defaults") or {}
+    if not isinstance(plot_defaults, dict):
+        raise SystemExit("`plot_defaults` must be a mapping.")
 
     bag = raw.get("bag")
     if not bag:
         raise SystemExit("Config must include `bag`.")
 
     plots = [
-        parse_plot(plot_raw, aliases, styles, index)
+        parse_plot(plot_raw, aliases, styles, index, plot_defaults)
         for index, plot_raw in enumerate(raw.get("plots") or [], start=1)
     ]
     if not plots:
@@ -68,10 +71,13 @@ def parse_plot(
     aliases: dict[str, str],
     styles: dict[str, dict[str, Any]],
     index: int,
+    defaults: dict[str, Any] | None = None,
 ) -> PlotConfig:
     if not isinstance(raw, dict):
         raise SystemExit(f"Plot #{index} must be a mapping.")
 
+    merged = dict(defaults or {})
+    merged.update(raw)
     raw_series = raw.get("series", raw.get("topics"))
     if not raw_series:
         raise SystemExit(f"Plot #{index} must include `series`.")
@@ -81,30 +87,43 @@ def parse_plot(
         for series_index, series_raw in enumerate(raw_series, start=1)
     ]
     return PlotConfig(
-        title=optional_label_text(raw, "title"),
+        title=optional_label_text(merged, "title"),
         title_loc=parse_loc(
-            raw.get("title_loc", "center"),
+            merged.get("title_loc", "center"),
             {"left", "center", "right"},
             f"Plot #{index} `title_loc`",
         ),
+        title_size=optional_positive_float(merged.get("title_size"), f"Plot #{index} `title_size`"),
         series=series,
-        x_label=parse_axis_label(raw, "x_label", "time [s]"),
+        x_label=parse_axis_label(merged, "x_label", "time [s]"),
         x_label_loc=parse_loc(
-            raw.get("x_label_loc", "center"),
+            merged.get("x_label_loc", "center"),
             {"left", "center", "right"},
             f"Plot #{index} `x_label_loc`",
         ),
-        y_label=optional_label_text(raw, "y_label"),
+        x_label_size=optional_positive_float(merged.get("x_label_size"), f"Plot #{index} `x_label_size`"),
+        y_label=optional_label_text(merged, "y_label"),
         y_label_side=parse_loc(
-            raw.get("y_label_side", "left"),
+            merged.get("y_label_side", "left"),
             {"left", "right"},
             f"Plot #{index} `y_label_side`",
         ),
         y_label_loc=parse_loc(
-            raw.get("y_label_loc", "center"),
+            merged.get("y_label_loc", "center"),
             {"bottom", "center", "top"},
             f"Plot #{index} `y_label_loc`",
         ),
+        y_label_size=optional_positive_float(merged.get("y_label_size"), f"Plot #{index} `y_label_size`"),
+        tick_label_size=optional_positive_float(
+            merged.get("tick_label_size"),
+            f"Plot #{index} `tick_label_size`",
+        ),
+        text_font=optional_str(merged.get("text_font")),
+        font_size=optional_positive_float(merged.get("font_size"), f"Plot #{index} `font_size`"),
+        legend_font=optional_str(merged.get("legend_font")),
+        legend_size=optional_positive_float(merged.get("legend_size"), f"Plot #{index} `legend_size`"),
+        grid_linewidth=positive_float(merged.get("grid_linewidth", 0.8), f"Plot #{index} `grid_linewidth`"),
+        grid_alpha=parse_alpha(merged.get("grid_alpha", 0.25), f"Plot #{index} `grid_alpha`"),
     )
 
 
@@ -274,3 +293,29 @@ def optional_float(value: Any) -> float | None:
     if value is None:
         return None
     return float(value)
+
+
+def optional_positive_float(value: Any, context: str) -> float | None:
+    if value is None:
+        return None
+    return positive_float(value, context)
+
+
+def positive_float(value: Any, context: str) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise SystemExit(f"{context} must be a positive number.") from exc
+    if number <= 0:
+        raise SystemExit(f"{context} must be a positive number.")
+    return number
+
+
+def parse_alpha(value: Any, context: str) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise SystemExit(f"{context} must be a number between 0 and 1.") from exc
+    if number < 0 or number > 1:
+        raise SystemExit(f"{context} must be a number between 0 and 1.")
+    return number

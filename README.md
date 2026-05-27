@@ -58,6 +58,8 @@ output:
   dpi: 140
 ```
 
+When `time.mode` is `relative` and `start` is set, the plotted x-axis is shifted so that `start` becomes `0`.
+
 Field paths use dot notation and simple indexes:
 
 ```yaml
@@ -107,6 +109,24 @@ Supported placement values:
 - `y_label_side`: `left`, `right`
 - `y_label_loc`: `bottom`, `center`, `top`
 
+Shared plot settings can be defined once and overridden inside an individual
+plot when needed:
+
+```yaml
+plot_defaults:
+  text_font: Times New Roman
+  font_size: 12
+  legend_font: Times New Roman
+  legend_size: 10
+  grid_linewidth: 0.6
+  grid_alpha: 0.3
+```
+
+`font_size` applies to titles, axis labels, and tick labels across all
+subplots. Use `title_size`, `x_label_size`, `y_label_size`, or
+`tick_label_size` inside `plot_defaults` or an individual plot for specific
+overrides. `legend_font` and `legend_size` control series legend labels.
+
 Series can be either a direct numeric field or a derived function:
 
 ```yaml
@@ -122,7 +142,11 @@ Functions receive the topic message as their default input. If a function needs 
   function: quat_yaw
   kwargs:
     field: pose.orientation
+    angle_range: 0_2pi
 ```
+
+Quaternion angle functions use `angle_range: -pi_pi` by default. Set
+`angle_range: 0_2pi` to wrap negative results into the non-negative range.
 
 Built-in functions currently include:
 
