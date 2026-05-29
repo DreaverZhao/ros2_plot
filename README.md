@@ -118,6 +118,7 @@ plot_defaults:
   font_size: 12
   legend_font: Times New Roman
   legend_size: 10
+  legend_loc: upper left
   grid_linewidth: 0.6
   grid_alpha: 0.3
 ```
@@ -125,7 +126,8 @@ plot_defaults:
 `font_size` applies to titles, axis labels, and tick labels across all
 subplots. Use `title_size`, `x_label_size`, `y_label_size`, or
 `tick_label_size` inside `plot_defaults` or an individual plot for specific
-overrides. `legend_font` and `legend_size` control series legend labels.
+overrides. `legend_font`, `legend_size`, and `legend_loc` control the series
+legend labels.
 
 Series can be either a direct numeric field or a derived function:
 

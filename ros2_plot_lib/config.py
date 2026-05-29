@@ -122,6 +122,7 @@ def parse_plot(
         font_size=optional_positive_float(merged.get("font_size"), f"Plot #{index} `font_size`"),
         legend_font=optional_str(merged.get("legend_font")),
         legend_size=optional_positive_float(merged.get("legend_size"), f"Plot #{index} `legend_size`"),
+        legend_loc=parse_legend_loc(merged.get("legend_loc"), f"Plot #{index} `legend_loc`"),
         grid_linewidth=positive_float(merged.get("grid_linewidth", 0.8), f"Plot #{index} `grid_linewidth`"),
         grid_alpha=parse_alpha(merged.get("grid_alpha", 0.25), f"Plot #{index} `grid_alpha`"),
     )
@@ -319,3 +320,27 @@ def parse_alpha(value: Any, context: str) -> float:
     if number < 0 or number > 1:
         raise SystemExit(f"{context} must be a number between 0 and 1.")
     return number
+
+
+def parse_legend_loc(value: Any, context: str) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise SystemExit(f"{context} must be a string.")
+    normalized = value.strip().lower()
+    allowed = {
+        "best",
+        "upper right",
+        "upper left",
+        "lower left",
+        "lower right",
+        "right",
+        "center left",
+        "center right",
+        "lower center",
+        "upper center",
+        "center",
+    }
+    if normalized not in allowed:
+        raise SystemExit(f"{context} must be one of: {', '.join(sorted(allowed))}.")
+    return normalized

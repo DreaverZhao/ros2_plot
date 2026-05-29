@@ -20,8 +20,18 @@ styles:
     linestyle: "--"
     linewidth: 1.5
 
+plot_defaults:
+  text_font: Times New Roman
+  font_size: 12
+  legend_font: Times New Roman
+  legend_size: 10
+  legend_loc: upper left
+  grid_linewidth: 0.6
+  grid_alpha: 0.3
+
 plots:
   - title: Position
+    title_size: 14
     y_label: position [m]
     series:
       - topic: odom
@@ -36,6 +46,7 @@ plots:
           color: "#16a34a"
 
   - title: Angular velocity
+    title_size: 14
     y_label: yaw rate [rad/s]
     series:
       - topic: imu
@@ -46,6 +57,7 @@ plots:
           linewidth: 1.5
 
   - title: Orientation
+    title_size: 14
     y_label: angle [rad]
     series:
       - topic: imu
@@ -60,7 +72,9 @@ plots:
           color: "#ea580c"
       - topic: imu
         function: quat_yaw
-        label: yaw
+        label: yaw 0..2pi
+        kwargs:
+          angle_range: 0_2pi
         style:
           color: "#0891b2"
           linestyle: "-."

@@ -34,6 +34,7 @@ def render(config: AppConfig, data: dict[str, tuple[list[float], list[float]]]) 
         y_label_size = plot.y_label_size or plot.font_size
         tick_label_size = plot.tick_label_size or plot.font_size
         legend_size = plot.legend_size or plot.font_size
+        legend_loc = plot.legend_loc or "best"
 
         has_visible_labels = False
         for series in plot.series:
@@ -66,9 +67,9 @@ def render(config: AppConfig, data: dict[str, tuple[list[float], list[float]]]) 
             if legend_font_properties:
                 if legend_size is not None:
                     legend_font_properties.set_size(legend_size)
-                axis.legend(prop=legend_font_properties)
+                axis.legend(loc=legend_loc, prop=legend_font_properties)
             else:
-                axis.legend(fontsize=legend_size)
+                axis.legend(loc=legend_loc, fontsize=legend_size)
 
     fig.tight_layout()
 

@@ -48,6 +48,7 @@ class PlotConfig:
     font_size: float | None = None
     legend_font: str | None = None
     legend_size: float | None = None
+    legend_loc: str | None = None
     grid_linewidth: float = 0.8
     grid_alpha: float = 0.25
 
