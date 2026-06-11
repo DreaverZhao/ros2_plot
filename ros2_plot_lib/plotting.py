@@ -11,6 +11,8 @@ def render(config: AppConfig, data: dict[str, tuple[list[float], list[float]]]) 
             "Missing dependency: install matplotlib, for example `python3 -m pip install matplotlib`."
         ) from exc
 
+    plt.rcParams['pdf.fonttype'] = 42
+
     for plot in config.plots:
         math_font = plot.legend_font or plot.text_font
         if math_font:
